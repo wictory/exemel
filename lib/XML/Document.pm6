@@ -16,7 +16,7 @@ class XML::Document does XML::Node
     appendNode insertNode insertBefore insertAfter
     replaceChild removeChild craft
   >;
-  has $.filename; ## Optional, used for new load() and save() methods.
+  has IO::Path $.filename; ## Optional, used for new load() and save() methods.
 
   method cloneNode ()
   {
@@ -39,7 +39,7 @@ class XML::Document does XML::Node
     $.root{$offset};
   }
 
-  multi method new (Str $xml, :$filename)
+  multi method new (Str $xml, IO::Path :$filename)
   {
     my $version = '1.0';
     my $encoding;
@@ -111,12 +111,13 @@ class XML::Document does XML::Node
   ## load() is used instead of new() to create a new object.
   ## e.g.:  my $doc = XML::Document.load("myfile.xml");
   ##
-  method load (Str $filename)
+  method load (Cool:D $filename)
   {
-    if ($filename.IO ~~ :f)
+    my IO::Path:D $io = $filename.IO;
+    if $io.f
     {
-      my $text = slurp($filename);
-      return self.new($text, :$filename);
+      my $text = slurp($io);
+      return self.new($text, :filename($io));
     }
     else
     {
@@ -138,21 +139,26 @@ class XML::Document does XML::Node
   ## Saves the XML to a new file. Does not override the existing filename,
   ## so future calls to save() will save to the original file, not the new one.
   ##
-  method save (Str $filename?, Bool :$copy)
+  method save (Cool $filename?, Bool :$copy)
   {
-    my $fname = $!filename;
+    my IO::Path $fname = $.filename;
     if ($filename)
     {
-      $fname = $filename;
+      $fname = $filename.IO;
       if (!$copy)
       {
-        $!filename = $filename;
+        $!filename = $fname;
       }
     }
-    if (!$fname) { return False; }
-    my $file = open $filename, :w;
-    $file.say: self;
-    $file.close;
+    with $fname
+    {
+      .spurt: self;
+      return True;
+    }
+    else
+    {
+      return False;
+    }
   }
 
 }

@@ -14,7 +14,7 @@ module XML
     return XML::Document.new($input.slurp-rest);
   }
 
-  sub from-xml-file (Str $file) is export
+  sub from-xml-file (Cool:D $file) is export
   {
     return XML::Document.load($file);
   }
@@ -24,11 +24,11 @@ module XML
     return XML::Element.craft($name, |@contents, |%attribs);
   }
 
-  multi sub open-xml (Str $src where .IO.e && !.IO.d) is export {
+  multi sub open-xml (Cool:D $src where .IO.e && !.IO.d) is export {
     from-xml-file $src
   }
 
-  multi sub open-xml (Str $src) is export {
+  multi sub open-xml (Cool:D $src where .isa(Str)) is export {
     from-xml $src
   }
 
@@ -36,7 +36,4 @@ module XML
     from-xml-stream $src
   }
 
-  multi sub open-xml (IO::Path $src) is export {
-    from-xml-stream $src.open
-  }
 }
