@@ -5,7 +5,7 @@
 use Test;
 use XML;
 
-plan 13;
+plan 17;
 
 my $text = '<test><title>The title</title><bullocks><item name="first"/><item name="second"/></bullocks></test>';
 
@@ -20,6 +20,12 @@ is $xml.root.nodes[0].nodes[0], 'The title', 'text node parsed';
 is $xml.root.nodes[1].nodes[0].attribs<name>, 'first', 'attribute 1 parsed';
 is $xml.root.nodes[1].nodes[1].attribs<name>, 'second', 'attribute 2 parsed';
 is $xml, $head~$text, 'parsed back to xml';
+
+lives-ok { $xml.hasdecl = False; }
+is $xml, $text, 'parsed back to xml without header';
+
+lives-ok { $xml.hasdecl = True; }
+is $xml, $head~$text, 'parsed back to xml, again';
 
 $xml.root.append-xml('<bogus value="false"/>');
 

@@ -7,6 +7,7 @@ class XML::Document does XML::Node
 {
   has $.version = '1.0';
   has $.encoding;
+  has Bool:D $.hasdecl is rw = True;
   has %.doctype;
   has $.root handles <
     attribs nodes elements lookfor getElementById getElementsByTagName
@@ -85,12 +86,15 @@ class XML::Document does XML::Node
 
   method Str()
   {
-    my $document = '<?xml version="' ~ $.version ~ '"';
-    if $.encoding
-    {
-      $document ~= ' encoding="' ~ $.encoding ~ '"';
+    my $document = "";
+    if $.hasdecl {
+      $document ~= '<?xml version="' ~ $.version ~ '"';
+      if $.encoding
+      {
+        $document ~= ' encoding="' ~ $.encoding ~ '"';
+      }
+      $document ~= '?>';
     }
-    $document ~= '?>';
     if +%.doctype.keys > 0
     {
       $document ~= '<!DOCTYPE ' ~ %.doctype<type> ~ %.doctype<value> ~ '>';
