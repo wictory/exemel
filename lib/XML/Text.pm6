@@ -8,11 +8,11 @@ use XML::Node;
 class XML::Text does XML::Node
 {
   has $.text;
-  method Str (:$strip)
+  method string (:$dont-strip)
   {
     my $text = $.text;
     $text ~~ s:g/\s+/ /;  ## Relace multiple whitespace with a single space.
-    if $strip
+    unless $dont-strip
     {
         $text ~~ s:g/\s+$//;  ## Chop out trailing spaces.
         $text ~~ s:g/^\s+//;  ## Chop out leading spaces.
@@ -20,9 +20,9 @@ class XML::Text does XML::Node
     $text.=chomp;         ## Remove a trailing newline if it exists.
     return $text;
   }
-  method string ()
+  method Str ()
   {
-    return self.Str(:strip);
+    return self.string(:dont-strip);
   }
 }
 

@@ -152,7 +152,7 @@ class XML::Document does XML::Node
     }
     with $fname
     {
-      .spurt: self;
+      spurt $_, self.Str;
       return True;
     }
     else
